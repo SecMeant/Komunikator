@@ -198,4 +198,5 @@ void FinishConnection(int n)
     	WSACleanup();
     	return 0;
 	}
+	//to moj koncowy komentarz
 }
