@@ -2,7 +2,7 @@
 #include <stdint.h>
 const size_t buffLength = 512;
 const uint16_t defaultPort = 31337;
-
+//eloszka kometarz od holza
 
 NetSock::NetSock(
 		int n, // n == 0 SERVER , n == 1 CLIENT 
