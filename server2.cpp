@@ -16,15 +16,9 @@
 #define DEFAULT_BUFLEN 512
 #define DEFAULT_PORT "31337"
 
-DWORD __stdcall Threadrec(void *)
-{
+DWORD __stdcall Threadrec(void *);
 
-}
-
-DWORD __stdcall Threadsend(void *)
-{
-
-}
+DWORD __stdcall Threadsend(void *);
 
 int __cdecl main(void) 
 {
@@ -101,41 +95,19 @@ int __cdecl main(void)
     }
 
     // No longer need server socket
-    closesocket(ListenSocket);
+    //closesocket(ListenSocket);
 
-    // Receive until the peer shuts down the connection
-    do {
+    HANDLE h[2] = {
+    CreateThread(0,0,Threadrec,LPVOID(ClientSocket),0,0),
 
-        iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
-        if (iResult > 0) {
-            printf("Bytes received: %d\n", iResult);
+    CreateThread(0,0,Threadsend,LPVOID(ClientSocket),0,0)
+    };
 
-        // Echo the buffer back to the sender
-            char sendbuf[20];
-            scanf("%20s",sendbuf);
-            iSendResult = send( ClientSocket, sendbuf, strlen(sendbuf), 0 );
-            if (iSendResult == SOCKET_ERROR) {
-                printf("send failed with error: %d\n", WSAGetLastError());
-                closesocket(ClientSocket);
-                WSACleanup();
-                return 1;
-            }
-            printf("Bytes sent: %d\n", iSendResult);
-            printf("Message: %s\n", recvbuf);
-        }
-        else if (iResult == 0)
-            printf("Connection closing...\n");
-        else  {
-            printf("recv failed with error: %d\n", WSAGetLastError());
-            closesocket(ClientSocket);
-            WSACleanup();
-            return 1;
-        }
-
-    } while (iResult > 0);
-
+    WaitForSingleObject(h[0], INFINITE);
+    WaitForSingleObject(h[1], INFINITE);
 
     // shutdown the connection since we're done
+    /*
     iResult = shutdown(ClientSocket, SD_SEND);
     if (iResult == SOCKET_ERROR) {
         printf("shutdown failed with error: %d\n", WSAGetLastError());
@@ -143,11 +115,63 @@ int __cdecl main(void)
         WSACleanup();
         return 1;
     }
-
+    */
     // cleanup
-    closesocket(ClientSocket);
-    WSACleanup();
+    //closesocket(ClientSocket);
+    //WSACleanup();
 
     return 0;
 }
 
+DWORD __stdcall Threadsend(void * ClientSocket)
+{           int iSendResult;
+            int iResult;
+    do {
+        // Echo the buffer back to the sender
+            char sendbuf[20];
+            scanf("%20s",sendbuf);
+            
+            iSendResult = send( SOCKET(ClientSocket), sendbuf, strlen(sendbuf), 0 );
+            printf("Bytes sent: %d\n", iSendResult);
+            if (iSendResult == SOCKET_ERROR) {
+                printf("send failed with error: %d\n", WSAGetLastError());
+                closesocket(SOCKET(ClientSocket));
+                WSACleanup();
+                return 1;
+            }
+            
+       /* 
+        else if (iResult == 0)
+            printf("Connection closing...\n");
+        else  {
+            printf("recv failed with error: %d\n", WSAGetLastError());
+            closesocket(SOCKET(ClientSocket));
+            WSACleanup();
+            return 1;
+        }
+    */
+    } while (true);
+}
+
+DWORD __stdcall Threadrec(void * ClientSocket)
+{           
+            int iSendResult;
+            int iResult;
+    do {
+            char recvbuf[20];
+            iResult = recv(SOCKET(ClientSocket), recvbuf, strlen(recvbuf), 0);
+            if (iResult > 0) {
+                printf("Bytes received: %d\n", iResult);
+                printf("Message: %s\n", recvbuf);
+            }
+            /*else if (iResult == 0)
+                printf("Connection closing...\n");
+            else  {
+                printf("recv failed with error: %d\n", WSAGetLastError());
+                closesocket(SOCKET(ClientSocket));
+                WSACleanup();
+                return 1;
+            }
+            */
+        } while (true);
+}
