@@ -37,3 +37,5 @@ void sendData(NetSock &netsock){
 	scanf("%512s",data);
 	}while(netsock.SendData(data));
 }
+
+// adding comment
