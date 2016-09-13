@@ -91,7 +91,7 @@ int __cdecl main(int argc, char **argv)
         iResult = recv(SOCKET(ConnectSocket), recvbuf, 20, 0);
         if ( iResult > 0 )
             recvbuf[strlen(recvbuf)] = '\0';
-            printf("Bytes received: %d and theh message is %10s\n", iResult,recvbuf);
+            printf("Bytes received: %d and the message is %s\n", iResult,recvbuf);
             hghg =0;
             while(hghg<=20){recvbuf[hghg] = '\0';hghg++;}   
             //printf("Blok");
