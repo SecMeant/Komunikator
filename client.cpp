@@ -89,13 +89,17 @@ int __cdecl main(int argc, char **argv)
      do {
 
         iResult = recv(SOCKET(ConnectSocket), recvbuf, 20, 0);
+        int o=0;
+    while(o++<strlen(sendbuf))
+       	if(sendbuf[o]=='%')
+       		sendbuf[o]=' ';
         if ( iResult > 0 )
             recvbuf[strlen(recvbuf)] = '\0';
-            printf("Bytes received: %d and the message is %s\n", iResult,recvbuf);
+            printf("Message: %s\n", recvbuf);
             hghg =0;
             while(hghg<=20){recvbuf[hghg] = '\0';hghg++;}   
             //printf("Blok");
-        printf("%d\n", iResult);
+        if(iResult == -1){ printf("Polaczenie przerwane.");exit(3);}
 
     } while( true );
     WaitForSingleObject(h[0],INFINITE);
@@ -147,15 +151,17 @@ DWORD __stdcall ThreadSend(void* ConnectSocket){
       do {
        scanf("%20s",sendbuf);
        sendbuf[strlen(sendbuf)] = '\0';
+       int i=0;
+       while(i++<strlen(sendbuf))
+       	if(sendbuf[i]==' ')
+       		sendbuf[i]='%';
     iResult = send( SOCKET(ConnectSocket), sendbuf, strlen(sendbuf), 0 );
-    Sleep(1000);
     if (iResult == SOCKET_ERROR) {
         printf("send failed with error: %d\n", WSAGetLastError());
         closesocket(SOCKET(ConnectSocket));
         WSACleanup();
         return 1;
     }
-    printf("Bytes Sent: %ld\n", iResult);
     } while( true );
     
 }

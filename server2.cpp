@@ -106,7 +106,6 @@ int __cdecl main(void)
     while((iResult = recv(SOCKET(ClientSocket), recvbuf, recvbuflen, 0))!=0){
             recvbuf[strlen(recvbuf)]='\0';
             if (iResult > 0) {
-                printf("Bytes received: %d\n", iResult);
                 printf("Message: %s\n", recvbuf);
             }
             i=0;
@@ -121,6 +120,7 @@ int __cdecl main(void)
             }
             */
            }
+		   if(iResult == -1){ printf("Polaczenie przerwane.");exit(3);}
         
    
 
@@ -151,9 +151,12 @@ DWORD __stdcall Threadsend(void * ClientSocket)
         // Echo the buffer back to the sender
             char sendbuf[20];
             scanf("%20s",sendbuf);
+			int intbuffer = 0;
+			while(intbuffer < strlen(sendbuf)){
+				if(sendbuf[intbuffer] == ' ') sendbuf[intbuffer] = '%';
+				intbuffer++;
+			}
             iSendResult = send( SOCKET(ClientSocket),sendbuf ,strlen(sendbuf), 0 );
-            Sleep(1000);
-            printf("Bytes sent: %d\n", iSendResult);
             if (iSendResult == SOCKET_ERROR) {
                 printf("send failed with error: %d\n", WSAGetLastError());
                 closesocket(SOCKET(ClientSocket));
