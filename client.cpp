@@ -5,7 +5,10 @@
 #include <ws2tcpip.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <iostream>
 //#include <stdint.h>
+
+void customPrint(int fp);
 
 
 // Need to link with Ws2_32.lib, Mswsock.lib, and Advapi32.lib
@@ -26,10 +29,11 @@ int __cdecl main(int argc, char **argv)
     struct addrinfo *result = NULL,
                     *ptr = NULL,
                     hints;
-    char sendbuf[20];
+    system("cls");
+    char sendbuf[DEFAULT_BUFLEN];
     char recvbuf[DEFAULT_BUFLEN];
     int hghg =0;
-    while(hghg<=20){recvbuf[hghg] = '\0';hghg++;}
+    while(hghg<=DEFAULT_BUFLEN){recvbuf[hghg] = '\0';hghg++;}
     int iResult;
     int recvbuflen = DEFAULT_BUFLEN;
     // Validate the parameters
@@ -80,27 +84,30 @@ int __cdecl main(int argc, char **argv)
         break;
     }
     //int iResult;
-    //char recvbuf[20];
+    //char recvbuf[DEFAULT_BUFLEN];
     
      HANDLE h[2]={
     //CreateThread(0,0,ThreadRec,LPVOID(ConnectSocket),0,0),
     CreateThread(0,0,ThreadSend,LPVOID(ConnectSocket),0,0)
     };
+    // int k=0;
+    COORD BASICSET={0,0};
      do {
+     	HANDLE con=GetStdHandle(STD_OUTPUT_HANDLE);
+     	// COORD coord={50,k};
+        iResult = recv(SOCKET(ConnectSocket), recvbuf, DEFAULT_BUFLEN, 0);
 
-        iResult = recv(SOCKET(ConnectSocket), recvbuf, 20, 0);
-        int o=0;
-    while(o++<strlen(sendbuf))
-       	if(sendbuf[o]=='%')
-       		sendbuf[o]=' ';
         if ( iResult > 0 )
             recvbuf[strlen(recvbuf)] = '\0';
-            printf("Message: %s\n", recvbuf);
+        	// SetConsoleCursorPosition(con,coord);
+        	customPrint(50);
+            printf("From Server: %s", recvbuf);
             hghg =0;
-            while(hghg<=20){recvbuf[hghg] = '\0';hghg++;}   
+            while(hghg<=DEFAULT_BUFLEN){recvbuf[hghg] = '\0';hghg++;}   
             //printf("Blok");
         if(iResult == -1){ printf("Polaczenie przerwane.");exit(3);}
-
+        SetConsoleCursorPosition(con,BASICSET);
+        // k++;
     } while( true );
     WaitForSingleObject(h[0],INFINITE);
     //WaitForSingleObject(h[1],INFINITE);
@@ -126,7 +133,7 @@ int __cdecl main(int argc, char **argv)
 
 DWORD __stdcall ThreadRec(void*ConnectSocket){
     int iResult;
-    char recvbuf[20];
+    char recvbuf[DEFAULT_BUFLEN];
        /* iResult = shutdown(SOCKET(ConnectSocket), SD_SEND);
     if (iResult == SOCKET_ERROR) {
         printf("shutdown failed with error: %d\n", WSAGetLastError());
@@ -146,16 +153,20 @@ DWORD __stdcall ThreadRec(void*ConnectSocket){
 }
 DWORD __stdcall ThreadSend(void* ConnectSocket){
     int iResult;
-    char sendbuf[20];
+    char sendbuf[DEFAULT_BUFLEN];
       
       do {
-       scanf("%20s",sendbuf);
-       sendbuf[strlen(sendbuf)] = '\0';
-       int i=0;
-       while(i++<strlen(sendbuf))
-       	if(sendbuf[i]==' ')
-       		sendbuf[i]='%';
+       HANDLE con=GetStdHandle(STD_OUTPUT_HANDLE);
+       COORD coord={0,0};
+       DWORD cCharsWritten;
+       FillConsoleOutputCharacter(con,0,40,coord,&cCharsWritten);
+        SetConsoleCursorPosition(con,coord);
+
+       std::cin.getline(sendbuf,DEFAULT_BUFLEN);
+
     iResult = send( SOCKET(ConnectSocket), sendbuf, strlen(sendbuf), 0 );
+    customPrint(50);
+    printf("To Server: %s", sendbuf);
     if (iResult == SOCKET_ERROR) {
         printf("send failed with error: %d\n", WSAGetLastError());
         closesocket(SOCKET(ConnectSocket));
@@ -164,4 +175,13 @@ DWORD __stdcall ThreadSend(void* ConnectSocket){
     }
     } while( true );
     
+}
+
+void customPrint(int fp)
+{
+	static int k = 0;
+	HANDLE con=GetStdHandle(STD_OUTPUT_HANDLE);
+    COORD coord={fp,k};
+    SetConsoleCursorPosition(con,coord);
+    k++;
 }

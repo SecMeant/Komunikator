@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <iostream>
 
 
 // Need to link with Ws2_32.lib
@@ -35,7 +36,7 @@ int __cdecl main(void)
     char recvbuf[DEFAULT_BUFLEN];
     int recvbuflen = DEFAULT_BUFLEN;
     int i=0;
-    while(i<512){recvbuf[i]='\0';i++;}
+    while(i<DEFAULT_BUFLEN){recvbuf[i]='\0';i++;}
     // Initialize Winsock
     iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
     if (iResult != 0) {
@@ -106,7 +107,7 @@ int __cdecl main(void)
     while((iResult = recv(SOCKET(ClientSocket), recvbuf, recvbuflen, 0))!=0){
             recvbuf[strlen(recvbuf)]='\0';
             if (iResult > 0) {
-                printf("Message: %s\n", recvbuf);
+                printf("From Client: %s\n", recvbuf);
             }
             i=0;
             while(i<512){recvbuf[i]='\0';i++;}
@@ -149,13 +150,8 @@ DWORD __stdcall Threadsend(void * ClientSocket)
             int iResult;
     do {
         // Echo the buffer back to the sender
-            char sendbuf[20];
-            scanf("%20s",sendbuf);
-			int intbuffer = 0;
-			while(intbuffer < strlen(sendbuf)){
-				if(sendbuf[intbuffer] == ' ') sendbuf[intbuffer] = '%';
-				intbuffer++;
-			}
+            char sendbuf[DEFAULT_BUFLEN];
+            std::cin.getline(sendbuf,DEFAULT_BUFLEN);
             iSendResult = send( SOCKET(ClientSocket),sendbuf ,strlen(sendbuf), 0 );
             if (iSendResult == SOCKET_ERROR) {
                 printf("send failed with error: %d\n", WSAGetLastError());
@@ -180,6 +176,6 @@ DWORD __stdcall Threadrec(void * ClientSocket)
 {           
             int iSendResult;
             int iResult;
-            char recvbuf[20];
+            char recvbuf[DEFAULT_BUFLEN];
 
 }
