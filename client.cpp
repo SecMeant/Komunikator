@@ -163,16 +163,20 @@ DWORD __stdcall ThreadSend(void* ConnectSocket){
         SetConsoleCursorPosition(con,coord);
 
        std::cin.getline(sendbuf,DEFAULT_BUFLEN);
+       if(strlen(sendbuf)>0)
+       {
 
-    iResult = send( SOCKET(ConnectSocket), sendbuf, strlen(sendbuf), 0 );
-    customPrint(50);
-    printf("To Server: %s", sendbuf);
-    if (iResult == SOCKET_ERROR) {
-        printf("send failed with error: %d\n", WSAGetLastError());
-        closesocket(SOCKET(ConnectSocket));
-        WSACleanup();
-        return 1;
-    }
+		    iResult = send( SOCKET(ConnectSocket), sendbuf, strlen(sendbuf), 0 );
+		    customPrint(50);
+		    printf("To Server: %s", sendbuf);
+		    if (iResult == SOCKET_ERROR) {
+		        printf("send failed with error: %d\n", WSAGetLastError());
+		        closesocket(SOCKET(ConnectSocket));
+		        WSACleanup();
+		        return 1;
+		    }
+		}
+		
     } while( true );
     
 }
