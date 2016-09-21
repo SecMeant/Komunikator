@@ -9,6 +9,9 @@
 #include <string.h>
 #include <iostream>
 
+void customPrint(int fp);
+
+CONSOLE_SCREEN_BUFFER_INFO SBInfo;
 
 // Need to link with Ws2_32.lib
 #pragma comment (lib, "Ws2_32.lib")
@@ -103,12 +106,19 @@ int __cdecl main(void)
 
     CreateThread(0,0,Threadsend,LPVOID(ClientSocket),0,0)
     };
-
+    HANDLE con=GetStdHandle(STD_OUTPUT_HANDLE);
     while((iResult = recv(SOCKET(ClientSocket), recvbuf, recvbuflen, 0))!=0){
             recvbuf[strlen(recvbuf)]='\0';
             if (iResult > 0) {
-                printf("From Client: %s\n", recvbuf);
+                GetConsoleScreenBufferInfo(con, &SBInfo);
+
+            customPrint(50);
+            printf("From Client: %s", recvbuf);
+            i =0;
+            while(i<=DEFAULT_BUFLEN){recvbuf[i] = '\0';i++;} 
             }
+             if(iResult == -1){ printf("Polaczenie przerwane.");exit(3);}
+                SetConsoleCursorPosition(con,SBInfo.dwCursorPosition);
             i=0;
             while(i<512){recvbuf[i]='\0';i++;}
             /*else if (iResult == 0)
@@ -150,9 +160,17 @@ DWORD __stdcall Threadsend(void * ClientSocket)
             int iResult;
     do {
         // Echo the buffer back to the sender
+            HANDLE con=GetStdHandle(STD_OUTPUT_HANDLE);
+            COORD coord={0,0};
+            DWORD cCharsWritten;
+            FillConsoleOutputCharacter(con,0,40,coord,&cCharsWritten);
+            SetConsoleCursorPosition(con,coord);
+
             char sendbuf[DEFAULT_BUFLEN];
             std::cin.getline(sendbuf,DEFAULT_BUFLEN);
             iSendResult = send( SOCKET(ClientSocket),sendbuf ,strlen(sendbuf), 0 );
+            customPrint(50);
+            printf("To Client: %s", sendbuf);
             if (iSendResult == SOCKET_ERROR) {
                 printf("send failed with error: %d\n", WSAGetLastError());
                 closesocket(SOCKET(ClientSocket));
@@ -178,4 +196,13 @@ DWORD __stdcall Threadrec(void * ClientSocket)
             int iResult;
             char recvbuf[DEFAULT_BUFLEN];
 
+}
+
+void customPrint(int fp)
+{
+    static int k = 0;
+    HANDLE con=GetStdHandle(STD_OUTPUT_HANDLE);
+    COORD coord={fp,k};
+    SetConsoleCursorPosition(con,coord);
+    k++;
 }

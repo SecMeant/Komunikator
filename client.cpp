@@ -22,6 +22,8 @@ DWORD __stdcall ThreadSend(void*);
 #define DEFAULT_BUFLEN 512
 #define DEFAULT_PORT "31337"
 
+CONSOLE_SCREEN_BUFFER_INFO SBInfo;
+
 int __cdecl main(int argc, char **argv) 
 {
     WSADATA wsaData;
@@ -100,13 +102,15 @@ int __cdecl main(int argc, char **argv)
         if ( iResult > 0 )
             recvbuf[strlen(recvbuf)] = '\0';
         	// SetConsoleCursorPosition(con,coord);
+        	GetConsoleScreenBufferInfo(con, &SBInfo);
+
         	customPrint(50);
             printf("From Server: %s", recvbuf);
             hghg =0;
             while(hghg<=DEFAULT_BUFLEN){recvbuf[hghg] = '\0';hghg++;}   
             //printf("Blok");
         if(iResult == -1){ printf("Polaczenie przerwane.");exit(3);}
-        SetConsoleCursorPosition(con,BASICSET);
+        SetConsoleCursorPosition(con,SBInfo.dwCursorPosition);
         // k++;
     } while( true );
     WaitForSingleObject(h[0],INFINITE);
