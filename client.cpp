@@ -41,6 +41,7 @@ int __cdecl main(int argc, char **argv)
     // Validate the parameters
     if (argc != 2) {
         printf("usage: %s server-name\n", argv[0]);
+        system("pause");
         return 1;
     }
 
@@ -48,6 +49,7 @@ int __cdecl main(int argc, char **argv)
     iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
     if (iResult != 0) {
         printf("WSAStartup failed with error: %d\n", iResult);
+        system("pause");
         return 1;
     }
 
@@ -60,6 +62,7 @@ int __cdecl main(int argc, char **argv)
     iResult = getaddrinfo(argv[1], DEFAULT_PORT, &hints, &result);
     if ( iResult != 0 ) {
         printf("getaddrinfo failed with error: %d\n", iResult);
+        system("pause");
         WSACleanup();
         return 1;
     }
@@ -72,6 +75,7 @@ int __cdecl main(int argc, char **argv)
             ptr->ai_protocol);
         if (ConnectSocket == INVALID_SOCKET) {
             printf("socket failed with error: %ld\n", WSAGetLastError());
+            system("pause");
             WSACleanup();
             return 1;
         }

@@ -91,6 +91,7 @@ int __cdecl main(void)
     }
 
     // Accept a client socket
+    puts("Waiting for client to connect . . .");
     ClientSocket = accept(ListenSocket, NULL, NULL);
     if (ClientSocket == INVALID_SOCKET) {
         printf("accept failed with error: %d\n", WSAGetLastError());
@@ -158,6 +159,7 @@ int __cdecl main(void)
 DWORD __stdcall Threadsend(void * ClientSocket)
 {           int iSendResult;
             int iResult;
+            send( SOCKET(ClientSocket),"You have been connected to the server\n" ,38, 0 );
     do {
         // Echo the buffer back to the sender
             HANDLE con=GetStdHandle(STD_OUTPUT_HANDLE);
